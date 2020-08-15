@@ -10,16 +10,18 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.example.gerenciadordelivros.R;
 import com.example.gerenciadordelivros.adapter.LivroAdapter;
 import com.example.gerenciadordelivros.data.LivroDAO;
+import com.example.gerenciadordelivros.dialogs.DeleteDialog;
 import com.example.gerenciadordelivros.dominio.Livro;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LivroAdapter.OnLivroListener, DeleteDialog.OnDeleteListener {
 
     private LivroDAO livroDAO;
 
@@ -48,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         livroDAO = LivroDAO.getInstance(this);
         List<Livro> listaLivros = livroDAO.list();
 
-        livroAdapter = new LivroAdapter(listaLivros, this);
+        livroAdapter = new LivroAdapter(listaLivros, this, this);
 
         recyclerView.setAdapter(livroAdapter);
     }
@@ -84,12 +86,42 @@ public class MainActivity extends AppCompatActivity {
         if(requestCode==100 && resultCode == RESULT_OK){
             atualizaListaLivros();
         }
+
+        if(requestCode==101 && resultCode == RESULT_OK){
+            atualizaListaLivros();
+        }
     }
 
     public void atualizaListaLivros(){
         List<Livro> livros = livroDAO.list();
         livroAdapter.setItems(livros);
         livroAdapter.notifyDataSetChanged();
+
+    }
+
+    @Override
+    public void onLivroClick(int posicao) {
+        //Toast.makeText(this, "click "+posicao, Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(getApplicationContext(),EditarLivroActivity.class);
+        intent.putExtra("livro",livroAdapter.getItem(posicao));
+        startActivityForResult(intent, 101);
+    }
+
+    @Override
+    public void onLivroLongClick(int posicao) {
+        Livro livro = livroAdapter.getItem(posicao);
+
+        DeleteDialog dialog = new DeleteDialog();
+        dialog.setLivro(livro);
+        dialog.show(getSupportFragmentManager(),"deleteDialog");
+    }
+
+    @Override
+    public void onDelete(Livro livro) {
+        livroDAO.delete(livro);
+        atualizaListaLivros();
+
+        Toast.makeText(this,"Livro Excluido com sucesso!", Toast.LENGTH_SHORT).show();
 
     }
 }
