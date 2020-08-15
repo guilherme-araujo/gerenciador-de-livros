@@ -1,11 +1,13 @@
 package com.example.gerenciadordelivros.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -42,6 +44,10 @@ public class LivroAdapter extends RecyclerView.Adapter<LivroAdapter.LivroHolder>
         holder.txtTitulo.setText(livro.getTitulo());
         holder.txtAutor.setText(livro.getAutor());
         holder.txtEditora.setText(livro.getEditora());
+
+        if(livro.isEmprestado()){
+            holder.ic_livro.setColorFilter(Color.GRAY);
+        }
     }
 
     @Override
@@ -49,7 +55,8 @@ public class LivroAdapter extends RecyclerView.Adapter<LivroAdapter.LivroHolder>
         return livros.size();
     }
 
-    public class LivroHolder extends RecyclerView.ViewHolder {
+    public class LivroHolder extends RecyclerView.ViewHolder
+            implements View.OnClickListener, View.OnLongClickListener{
 
         public TextView txtTitulo;
         public TextView txtAutor;
@@ -60,9 +67,27 @@ public class LivroAdapter extends RecyclerView.Adapter<LivroAdapter.LivroHolder>
             super(view);
 
             txtTitulo = view.findViewById(R.id.txtTitulo);
-            txtTitulo = view.findViewById(R.id.txtAutor);
-            txtTitulo = view.findViewById(R.id.txtEditora);
-            txtTitulo = view.findViewById(R.id.ic_livro);
+            txtAutor = view.findViewById(R.id.txtAutor);
+            txtEditora = view.findViewById(R.id.txtEditora);
+            ic_livro = view.findViewById(R.id.ic_livro);
+
+            view.setOnClickListener(this);
+            view.setOnLongClickListener(this);
+        }
+
+
+        @Override
+        public void onClick(View view) {
+            int pos = getAdapterPosition();
+            Toast.makeText(context, "OnClick "+(pos+1), Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public boolean onLongClick(View view) {
+            int pos = getAdapterPosition();
+            Toast.makeText(context, "OnLongClick "+(pos+1), Toast.LENGTH_SHORT).show();
+
+            return true;
         }
     }
 }
